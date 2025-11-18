@@ -160,7 +160,7 @@ nextButton.addEventListener('click', () => {
 showReview(currentReview);
 
 // Texte prédéfini à lire
-const instructionsText = "Bienvenue à la chasse au trésor ! Choisis un parc sur la carte ou dans la liste, puis résous les énigmes pour trouver le trésor caché. Amuse-toi bien !";
+const instructionsText = "Riri le canari rêve de devenir le capitaine de la Beaujoire, mais pour cela il doit former une équipe exceptionnelle. Il part alors dans le parc à la recherche de ses amis aide le à les retrouver: Anne, la Duchesse des Roses, Octo la pieuvre, Shiba le chien samouraï et flou le fantôme. Ensemble, ils unissent leurs talents pour surmonter les épreuves et avancer dans l’aventure. Leur mission : retrouver le ballon d’or secret, caché quelque part dans le parc";
 
 // Bouton pour lire/arrêter les instructions
 const readButton = document.getElementById("readInstructionsButton");

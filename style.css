@@ -124,11 +124,16 @@ button:hover {
     cursor: pointer;
 }
 
-.park-card img {
+.park-card .imageParc {
     width: 100%;
     height: 120px;
     object-fit: cover;
     border-radius: 4px;
+}
+
+.card-icon-bottom-left{
+    border-radius: 50%;
+    width: 30%;
 }
 
 .park-card:hover {
