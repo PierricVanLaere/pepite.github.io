@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chasse au Trésor dans les Parcs de Nantes</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+
+<body>
+    <header>
+        <div class="header-content">
+            <img src="images/logo.png" alt="Logo Chasse au Trésor" class="logo">
+            <div class="header-text">
+                <h1>Chasse au Trésor dans les Parcs de Nantes</h1>
+                <p>Découvre 5 des plus beaux parcs de Nantes en t'amusant !</p>
+            </div>
+        </div>
+    </header>
+
+    <div id="backButtonContainer" style="display: none;">
+        <button id="backButton" class="back">Retour</button>
+    </div>
+
+    <main>
+        <section class="intro" id="introSection">
+            <h2>Bienvenue, aventurier !</h2>
+            <p>
+                Prêt à explorer les parcs de Nantes ?<br>
+                Choisis un parc, résous les énigmes et trouve le trésor caché !
+            </p>
+            <button id="startButton">Commencer l'aventure</button>
+            <button id="showMapButton">Voir la carte des parcs</button>
+        </section>
+
+        <section class="parks" id="parksSection" style="display: none;">
+            <h2>Choisis un parc</h2>
+            <div class="park-list">
+                <div class="park-card" data-park="Jardin extraordinaire">
+                    <img src="images/extra.jpg" alt="Jardin extraordinaire">
+                    <h3>Jardin extraordinaire</h3>
+                    <p>Un jardin poétique avec des sculptures et des plantes insolites.</p>
+                </div>
+                <div class="park-card" data-park="Jardin des Plantes">
+                    <img src="images/jdp.jpg" alt="Jardin des Plantes">
+                    <h3>Jardin des Plantes</h3>
+                    <p>Un jardin historique avec des serres tropicales et des plantes rares.</p>
+                </div>
+                <div class="park-card" data-park="Île de Versailles">
+                    <img src="images/idv.jpg" alt="Île de Versailles">
+                    <h3>Île de Versailles</h3>
+                    <p>Une île verdoyante avec des ponts japonais et des cygnes.</p>
+                </div>
+                <div class="park-card" data-park="Parc Floral de la Beaujoire">
+                    <img src="images/beaujoire.jpg" alt="Parc Floral de la Beaujoire">
+                    <h3>Parc Floral de la Beaujoire</h3>
+                    <p>Un parc fleuri avec des jardins thématiques et des espaces de jeux.</p>
+                </div>
+                <div class="park-card" data-park="Parc de l’Arboretum">
+                    <img src="images/arbo.jpg" alt="Parc de l’Arboretum">
+                    <h3>Parc de l’Arboretum</h3>
+                    <p>Un parc arboré avec des arbres remarquables et des sentiers ombragés.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="map" id="mapSection" style="display: none;">
+            <h2>Carte des parcs à explorer</h2>
+            <div id="map" style="height: 400px; width: 100%;"></div>
+            <p>Clique sur un marqueur pour choisir un parc !</p>
+        </section>
+
+        <section class="game" id="gameSection" style="display: none;">
+            <h2 id="parkTitle">Aventure dans le <span id="selectedPark"></span></h2>
+            <div class="clue">
+                <p id="clueText">Indice : Cherche près de la grande statue !</p>
+            </div>
+            <div class="answer">
+                <input type="text" id="userAnswer" placeholder="Ta réponse...">
+                <button id="checkAnswer">Vérifier</button>
+            </div>
+            <div class="feedback" id="feedback"></div>
+        </section>
+
+        <section class="reviews" id="reviewsSection">
+            <h2>Avis des parents</h2>
+            <div class="carousel">
+                <div class="review active">
+                    <p>"Mon fils de 7 ans a adoré la chasse au trésor au Jardin extraordinaire ! Il a passé l'après-midi
+                        à chercher les indices et était si fier d'avoir trouvé le trésor. Merci pour cette activité
+                        géniale !"</p>
+                    <div class="author">— Marie L., Nantes</div>
+                    <div class="stars">★★★★★</div>
+                </div>
+                <div class="review">
+                    <p>"Une super idée pour occuper les enfants le week-end. Ma fille de 9 ans a insisté pour refaire
+                        une chasse au trésor dans un autre parc dès le lendemain !"</p>
+                    <div class="author">— Thomas R., Nantes</div>
+                    <div class="stars">★★★★★</div>
+                </div>
+            </div>
+            <button id="prevReview" class="carousel-button">❮</button>
+            <button id="nextReview" class="carousel-button">❯</button>
+        </section>
+    </main>
+
+    <section class="text-to-speech" id="textToSpeechSection">
+        <h2>Écoute les instructions</h2>
+            <div class="text-reader">
+                <button id="readInstructionsButton" class="read-button">
+                    <span class="icon">▶</span> Écouter les instructions
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2025 - Chasse au Trésor à Nantes</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
