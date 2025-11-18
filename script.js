@@ -18,17 +18,16 @@ const parksData = {
     },
     "Parc de l’Arboretum": {
         clue: "Indice : Le trésor est caché sous le plus grand chêne !",
-        answer: "chêne"
+        answer: "chene"
     }
 };
 
-// Coordonnées des 5 parcs (latitude, longitude)
 const parksCoordinates = {
-    "Jardin extraordinaire": [47.2095, -1.5536],
-    "Jardin des Plantes": [47.2181, -1.5596],
-    "Île de Versailles": [47.2044, -1.5769],
-    "Parc Floral de la Beaujoire": [47.2611, -1.5222],
-    "Parc de l’Arboretum": [47.2583, -1.5194]
+    "Jardin extraordinaire": [47.2002721, -1.5856774,17],
+    "Jardin des Plantes": [47.2193911, -1.54],
+    "Île de Versailles": [47.225611, -1.5644606,15],
+    "Parc Floral de la Beaujoire": [47.2621822, -1.5320338,17],
+    "Parc de l’Arboretum": [47.2694346, -1.5886027]
 };
 
 // Variable pour suivre la section actuelle
@@ -36,7 +35,19 @@ let currentSection = "intro";
 
 // Initialisation de la carte
 let map;
+
+// Fonction: Initialiser la carte avec tous les parcs (pour le bouton "Voir la carte")
 function initMap() {
+    // Toujours supprimer l'ancienne instance de carte avant d'en créer une nouvelle
+    if (map) {
+        map.remove();
+        map = null;
+    }
+
+    // Rétablir le titre et le paragraphe par défaut de la section carte
+    document.getElementById("mapSection").querySelector('h2').textContent = `Carte des parcs à explorer`;
+    document.getElementById("mapSection").querySelector('p').innerHTML = `Clique sur un marqueur pour commencer l'énigme !`;
+
     map = L.map('map').setView([47.2184, -1.5536], 13); // Centré sur Nantes
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -48,13 +59,43 @@ function initMap() {
         const [lat, lng] = parksCoordinates[park];
         L.marker([lat, lng])
             .addTo(map)
-            .bindPopup(`<b>${park}</b><br><button onclick="selectParkFromMap('${park}')">Choisir ce parc</button>`)
+            .bindPopup(`<b>${park}</b><br><button onclick="startParkGame('${park}')">Commencer l'énigme !</button>`)
             .openPopup();
     });
 }
 
-// Fonction pour sélectionner un parc depuis la carte
-function selectParkFromMap(park) {
+
+// Nouvelle Fonction: Afficher la carte centrée sur un seul parc (après un clic sur une carte)
+function showSingleParkMap(parkName) {
+    // Toujours supprimer l'ancienne instance de carte avant d'en créer une nouvelle
+    if (map) {
+        map.remove();
+        map = null;
+    }
+
+    const [lat, lng] = parksCoordinates[parkName];
+
+    // 1. Mettre à jour le titre et le bouton de la section
+    document.getElementById("mapSection").querySelector('h2').textContent = `Localisation du ${parkName}`;
+    const mapParagraph = document.getElementById("mapSection").querySelector('p');
+    mapParagraph.innerHTML = `Tu es sur place ? <button id="startGameButton" onclick="startParkGame('${parkName}')">Commencer l'énigme !</button>`;
+
+    // 2. Initialiser la nouvelle carte sur le parc sélectionné
+    map = L.map('map').setView([lat, lng], 20); // Zoom plus proche
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    L.marker([lat, lng])
+        .addTo(map)
+        .bindPopup(`<b>${parkName}</b>`)
+        .openPopup();
+}
+
+
+// Fonction: Démarrer le jeu (utilisée par les popups de la carte ou le bouton "Commencer l'énigme")
+function startParkGame(park) {
     document.getElementById("mapSection").style.display = "none";
     document.getElementById("gameSection").style.display = "block";
     currentSection = "game";
@@ -65,26 +106,37 @@ function selectParkFromMap(park) {
     document.getElementById("feedback").textContent = "";
 }
 
-// Gestion du bouton "Retour" global
+
+// Gestion du bouton "Retour" global (MODIFIÉ)
 function updateBackButton() {
     const backButtonContainer = document.getElementById("backButtonContainer");
-    if (currentSection === "intro") {
-        backButtonContainer.style.display = "none";
-    } else {
-        backButtonContainer.style.display = "block";
-    }
+    // Afficher le bouton si nous ne sommes pas à la page d'intro
+    backButtonContainer.style.display = (currentSection === "intro") ? "none" : "block";
 }
 
 document.getElementById("backButton").addEventListener("click", () => {
-    if (currentSection === "parks" || currentSection === "map") {
-        document.getElementById(currentSection + "Section").style.display = "none";
+    // Cacher l'élément courant
+    const currentElement = document.getElementById(currentSection + "Section");
+    if (currentElement) {
+        currentElement.style.display = "none";
+    }
+    document.getElementById('mapSection').style.display = 'none';
+
+    // Déterminer la prochaine section
+    if (currentSection === "map" || currentSection === "parks") {
+        // Depuis la liste des parcs ou la carte "tous parcs", revenir à l'intro
         document.getElementById("introSection").style.display = "block";
         currentSection = "intro";
-    } else if (currentSection === "game") {
-        document.getElementById("gameSection").style.display = "none";
+    } else if (currentSection === "map_single" || currentSection === "game") {
+        // Depuis la carte d'un seul parc ou le jeu, revenir à la liste des parcs
         document.getElementById("parksSection").style.display = "block";
         currentSection = "parks";
+
+        // Nettoyer la section carte (titre/bouton) si on la quitte
+        document.getElementById("mapSection").querySelector('h2').textContent = `Carte des parcs à explorer`;
+        document.getElementById("mapSection").querySelector('p').innerHTML = `Clique sur un marqueur pour choisir un parc !`;
     }
+
     updateBackButton();
 });
 
@@ -96,35 +148,33 @@ document.getElementById("startButton").addEventListener("click", () => {
     updateBackButton();
 });
 
-// Navigation vers la carte
+// Navigation vers la carte complète
 document.getElementById("showMapButton").addEventListener("click", () => {
     document.getElementById("introSection").style.display = "none";
     document.getElementById("mapSection").style.display = "block";
     currentSection = "map";
     updateBackButton();
-    if (!map) {
-        initMap();
-    }
+    initMap(); // Initialisation de la carte complète
 });
 
-// Navigation vers le jeu depuis la liste des parcs
+// Navigation vers la carte d'un seul parc depuis la liste (MODIFIÉ)
 document.querySelectorAll(".park-card").forEach(card => {
     card.addEventListener("click", () => {
         const selectedPark = card.getAttribute("data-park");
+
         document.getElementById("parksSection").style.display = "none";
-        document.getElementById("gameSection").style.display = "block";
-        currentSection = "game";
+        document.getElementById("mapSection").style.display = "block";
+        currentSection = "map_single"; // Nouvel état : carte d'un seul parc
         updateBackButton();
-        document.getElementById("selectedPark").textContent = selectedPark;
-        document.getElementById("clueText").textContent = parksData[selectedPark].clue;
-        document.getElementById("userAnswer").value = "";
-        document.getElementById("feedback").textContent = "";
+
+        // Affiche la carte centrée sur ce parc
+        showSingleParkMap(selectedPark);
     });
 });
 
 // Vérification de la réponse
 document.getElementById("checkAnswer").addEventListener("click", () => {
-    const userAnswer = document.getElementById("userAnswer").value.toLowerCase();
+    const userAnswer = document.getElementById("userAnswer").value.toLowerCase().replace(/é/g, 'e'); // Traiter l'accent
     const selectedPark = document.getElementById("selectedPark").textContent;
     const correctAnswer = parksData[selectedPark].answer;
 
@@ -168,18 +218,23 @@ let isReading = false;
 let utterance = null;
 let voicesLoaded = false;
 
-// Fonction pour obtenir la voix "Microsoft Julie - French (France)"
+// Fonction pour obtenir la voix "Microsoft Julie - French (France)" (ou une autre voix FR si Julie n'est pas dispo)
 function getJulieVoice() {
     const voices = window.speechSynthesis.getVoices();
-    return voices.find(voice => voice.name === "Microsoft Julie - French (France)");
+    return voices.find(voice => voice.name.includes("Julie") && voice.lang === "fr-FR") ||
+        voices.find(voice => voice.lang === "fr-FR"); // Fallback
 }
 
 // Fonction pour lire le texte avec la voix de Julie
 function speakWithJulie(text) {
     if (!voicesLoaded) {
-        console.log("Les voix ne sont pas encore chargées. Patientons...");
-        setTimeout(() => speakWithJulie(text), 100); // Réessaye après un court délai
+        setTimeout(() => speakWithJulie(text), 100);
         return;
+    }
+
+    // Annuler la lecture précédente si elle est en cours
+    if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
     }
 
     utterance = new SpeechSynthesisUtterance(text);
@@ -188,9 +243,6 @@ function speakWithJulie(text) {
     const julieVoice = getJulieVoice();
     if (julieVoice) {
         utterance.voice = julieVoice;
-        console.log("Voix Julie utilisée :", julieVoice.name);
-    } else {
-        console.log("Voix Julie non trouvée. Voici les voix disponibles :", window.speechSynthesis.getVoices());
     }
 
     utterance.onend = () => {
@@ -208,7 +260,7 @@ readButton.addEventListener("click", () => {
         readButton.innerHTML = '<span class="icon">▶</span> Écouter les instructions';
         isReading = false;
     } else {
-        // Lire le texte avec la voix de Julie
+        // Lire le texte
         readButton.innerHTML = '<span class="icon">❚❚</span> Arrêter';
         isReading = true;
         speakWithJulie(instructionsText);
@@ -218,18 +270,18 @@ readButton.addEventListener("click", () => {
 // Attendre que les voix soient chargées
 window.speechSynthesis.onvoiceschanged = () => {
     voicesLoaded = true;
-    console.log("Voices loaded. Julie available:", !!getJulieVoice());
+    // Vérification initiale du bouton "Retour" au chargement
+    updateBackButton();
 };
 
-// Forcer le chargement des voix (nécessaire pour certains navigateurs)
+
+// Fonction pour forcer le chargement des voix (nécessaire pour certains navigateurs)
 function loadVoices() {
     const voices = window.speechSynthesis.getVoices();
     if (voices.length > 0) {
         voicesLoaded = true;
-        console.log("Voices already loaded. Julie available:", !!getJulieVoice());
     }
 }
 
 // Appeler une première fois pour vérifier si les voix sont déjà chargées
 loadVoices();
-
